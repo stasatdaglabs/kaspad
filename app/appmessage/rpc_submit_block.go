@@ -77,9 +77,6 @@ type RPCBlockHeader struct {
 	Timestamp            int64
 	Bits                 uint32
 	Nonce                uint64
-	DAAScore             uint64
-	BlueWork             string
-	FinalityPoint        string
 }
 
 // RPCBlockVerboseData holds verbose data about a block

@@ -1,9 +1,6 @@
 package blockheader
 
-import (
-	"github.com/kaspanet/kaspad/domain/consensus/model/externalapi"
-	"math/big"
-)
+import "github.com/kaspanet/kaspad/domain/consensus/model/externalapi"
 
 type blockHeader struct {
 	version              uint16
@@ -14,21 +11,6 @@ type blockHeader struct {
 	timeInMilliseconds   int64
 	bits                 uint32
 	nonce                uint64
-	daaScore             uint64
-	blueWork             *big.Int
-	finalityPoint        *externalapi.DomainHash
-}
-
-func (bh *blockHeader) DAAScore() uint64 {
-	return bh.daaScore
-}
-
-func (bh *blockHeader) BlueWork() *big.Int {
-	return bh.blueWork
-}
-
-func (bh *blockHeader) FinalityPoint() *externalapi.DomainHash {
-	return bh.finalityPoint
 }
 
 func (bh *blockHeader) ToImmutable() externalapi.BlockHeader {
@@ -120,18 +102,6 @@ func (bh *blockHeader) Equal(other externalapi.BaseBlockHeader) bool {
 		return false
 	}
 
-	if bh.daaScore != other.DAAScore() {
-		return false
-	}
-
-	if bh.blueWork.Cmp(other.BlueWork()) != 0 {
-		return false
-	}
-
-	if !bh.finalityPoint.Equal(other.FinalityPoint()) {
-		return false
-	}
-
 	return true
 }
 
@@ -145,9 +115,6 @@ func (bh *blockHeader) clone() *blockHeader {
 		timeInMilliseconds:   bh.timeInMilliseconds,
 		bits:                 bh.bits,
 		nonce:                bh.nonce,
-		daaScore:             bh.daaScore,
-		blueWork:             bh.blueWork,
-		finalityPoint:        bh.finalityPoint,
 	}
 }
 
@@ -165,9 +132,6 @@ func NewImmutableBlockHeader(
 	timeInMilliseconds int64,
 	bits uint32,
 	nonce uint64,
-	daaScore uint64,
-	blueWork *big.Int,
-	finalityPoint *externalapi.DomainHash,
 ) externalapi.BlockHeader {
 	return &blockHeader{
 		version:              version,
@@ -178,8 +142,5 @@ func NewImmutableBlockHeader(
 		timeInMilliseconds:   timeInMilliseconds,
 		bits:                 bits,
 		nonce:                nonce,
-		daaScore:             daaScore,
-		blueWork:             blueWork,
-		finalityPoint:        finalityPoint,
 	}
 }

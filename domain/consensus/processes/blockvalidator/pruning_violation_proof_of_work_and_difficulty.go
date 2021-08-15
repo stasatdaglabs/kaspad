@@ -95,7 +95,7 @@ func (v *blockValidator) validateDifficulty(stagingArea *model.StagingArea,
 	isBlockWithTrustedData bool) error {
 
 	if !isBlockWithTrustedData {
-		// We need to calculate GHOSTDAG for the block in order to check its difficulty and blue work
+		// We need to calculate GHOSTDAG for the block in order to check its difficulty
 		err := v.ghostdagManager.GHOSTDAG(stagingArea, blockHash)
 		if err != nil {
 			return err

@@ -119,9 +119,6 @@ func TestGHOSTDAG(t *testing.T) {
 						0,
 						genesisHeader.Bits(),
 						0,
-						0,
-						big.NewInt(0),
-						nil,
 					)
 
 					err := g.GHOSTDAG(nil, blockID)
@@ -217,9 +214,6 @@ func TestBlueWork(t *testing.T) {
 		0,
 		0,
 		0,
-		0,
-		big.NewInt(0),
-		&externalapi.DomainHash{},
 	)
 
 	dagTopology.parentsMap[*fakeGenesisHash] = nil
@@ -245,9 +239,6 @@ func TestBlueWork(t *testing.T) {
 		0,
 		math.MaxUint32, // Put a very high difficulty so the chain that contains this block will have a very high blue work
 		0,
-		0,
-		big.NewInt(0),
-		&externalapi.DomainHash{},
 	)
 
 	dagTopology.parentsMap[*heaviestChainBlock2Hash] = []*externalapi.DomainHash{heaviestChainBlock1Hash}

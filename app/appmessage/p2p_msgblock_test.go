@@ -27,11 +27,7 @@ func TestBlock(t *testing.T) {
 	utxoCommitment := blockOne.Header.UTXOCommitment
 	bits := blockOne.Header.Bits
 	nonce := blockOne.Header.Nonce
-	daaScore := blockOne.Header.DAAScore
-	blueWork := blockOne.Header.BlueWork
-	finalityPoint := blockOne.Header.FinalityPoint
-	bh := NewBlockHeader(1, parentHashes, hashMerkleRoot, acceptedIDMerkleRoot, utxoCommitment, bits, nonce,
-		daaScore, blueWork, finalityPoint)
+	bh := NewBlockHeader(1, parentHashes, hashMerkleRoot, acceptedIDMerkleRoot, utxoCommitment, bits, nonce)
 
 	// Ensure the command is expected value.
 	wantCmd := MessageCommand(5)

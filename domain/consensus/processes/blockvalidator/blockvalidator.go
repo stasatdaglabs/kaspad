@@ -34,7 +34,6 @@ type blockValidator struct {
 	mergeDepthManager     model.MergeDepthManager
 	pruningStore          model.PruningStore
 	reachabilityManager   model.ReachabilityManager
-	finalityManager       model.FinalityManager
 
 	blockStore          model.BlockStore
 	ghostdagDataStore   model.GHOSTDAGDataStore
@@ -42,7 +41,6 @@ type blockValidator struct {
 	blockStatusStore    model.BlockStatusStore
 	reachabilityStore   model.ReachabilityDataStore
 	consensusStateStore model.ConsensusStateStore
-	daaBlocksStore      model.DAABlocksStore
 }
 
 // New instantiates a new BlockValidator
@@ -67,7 +65,6 @@ func New(powMax *big.Int,
 	coinbaseManager model.CoinbaseManager,
 	mergeDepthManager model.MergeDepthManager,
 	reachabilityManager model.ReachabilityManager,
-	finalityManager model.FinalityManager,
 
 	pruningStore model.PruningStore,
 
@@ -77,7 +74,6 @@ func New(powMax *big.Int,
 	blockStatusStore model.BlockStatusStore,
 	reachabilityStore model.ReachabilityDataStore,
 	consensusStateStore model.ConsensusStateStore,
-	daaBlocksStore model.DAABlocksStore,
 ) model.BlockValidator {
 
 	return &blockValidator{
@@ -102,7 +98,6 @@ func New(powMax *big.Int,
 		coinbaseManager:             coinbaseManager,
 		mergeDepthManager:           mergeDepthManager,
 		reachabilityManager:         reachabilityManager,
-		finalityManager:             finalityManager,
 
 		pruningStore:        pruningStore,
 		blockStore:          blockStore,
@@ -111,6 +106,5 @@ func New(powMax *big.Int,
 		blockStatusStore:    blockStatusStore,
 		reachabilityStore:   reachabilityStore,
 		consensusStateStore: consensusStateStore,
-		daaBlocksStore:      daaBlocksStore,
 	}
 }

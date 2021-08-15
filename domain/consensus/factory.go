@@ -253,7 +253,6 @@ func (f *factory) NewConsensus(config *Config, db infrastructuredatabase.Databas
 		coinbaseManager,
 		mergeDepthManager,
 		reachabilityManager,
-		finalityManager,
 
 		pruningStore,
 		blockStore,
@@ -262,7 +261,6 @@ func (f *factory) NewConsensus(config *Config, db infrastructuredatabase.Databas
 		blockStatusStore,
 		reachabilityDataStore,
 		consensusStateStore,
-		daaBlocksStore,
 	)
 	consensusStateManager, err := consensusstatemanager.New(
 		dbManager,
@@ -277,6 +275,7 @@ func (f *factory) NewConsensus(config *Config, db infrastructuredatabase.Databas
 		pastMedianTimeManager,
 		transactionValidator,
 		blockValidator,
+		reachabilityManager,
 		coinbaseManager,
 		mergeDepthManager,
 		finalityManager,
@@ -350,13 +349,11 @@ func (f *factory) NewConsensus(config *Config, db infrastructuredatabase.Databas
 		consensusStateManager,
 		ghostdagManager,
 		transactionValidator,
-		finalityManager,
 
 		acceptanceDataStore,
 		blockRelationStore,
 		multisetStore,
 		ghostdagDataStore,
-		daaBlocksStore,
 	)
 
 	blockProcessor := blockprocessor.New(
