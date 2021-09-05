@@ -1,5 +1,10 @@
 package externalapi
 
+import (
+	"fmt"
+	"strings"
+)
+
 // BlockLevelParents represent the parents within a single super-block level
 // See https://github.com/kaspanet/research/issues/3 for further details
 type BlockLevelParents []*DomainHash
@@ -60,4 +65,13 @@ func CloneParents(parents []BlockLevelParents) []BlockLevelParents {
 		clone[i] = blockLevelParents.Clone()
 	}
 	return clone
+}
+
+// ParentsString builds a string representation of the give BlockLevelParents slice
+func ParentsString(parents []BlockLevelParents) string {
+	stringBuilder := strings.Builder{}
+	for blockLevel, blockLevelParents := range parents {
+		stringBuilder.WriteString(fmt.Sprintf("%d: %s\n", blockLevel, blockLevelParents))
+	}
+	return stringBuilder.String()
 }

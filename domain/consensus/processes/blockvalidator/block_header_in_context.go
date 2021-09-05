@@ -198,7 +198,8 @@ func (v *blockValidator) checkIndirectParents(stagingArea *model.StagingArea, he
 
 	areParentsEqual := externalapi.ParentsEqual(header.Parents(), expectedParents)
 	if !areParentsEqual {
-		return errors.Wrapf(ruleerrors.ErrUnexpectedParents, "unexpected indirect block parents")
+		return errors.Wrapf(ruleerrors.ErrUnexpectedParents, "unexpected indirect block parents. "+
+			"Expected:\n%sgot:\n%s", externalapi.ParentsString(expectedParents), externalapi.ParentsString(header.Parents()))
 	}
 	return nil
 }
