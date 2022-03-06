@@ -1,39 +1,39 @@
 package mine
 
 import (
+	"fmt"
+	"github.com/kaspanet/kaspad/stability-tests/common/copy"
 	"math/rand"
+	"os"
+	"path"
 	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/kaspanet/kaspad/app/appmessage"
 	"github.com/kaspanet/kaspad/domain/consensus"
 	"github.com/kaspanet/kaspad/domain/consensus/model/externalapi"
 	"github.com/kaspanet/kaspad/domain/consensus/model/testapi"
 	"github.com/kaspanet/kaspad/domain/consensus/utils/consensushashing"
 	"github.com/kaspanet/kaspad/domain/consensus/utils/mining"
-	"github.com/kaspanet/kaspad/stability-tests/common/rpc"
 	"github.com/pkg/errors"
 )
 
-// FromFile mines all blocks as described by `jsonFile`
-func FromFile(jsonFile string, consensusConfig *consensus.Config, rpcClient *rpc.Client, dataDir string) error {
+func fromFile(jsonFile string, consensusConfig *consensus.Config, dataDir string) error {
 	log.Infof("Mining blocks from JSON file %s from data directory %s", jsonFile, dataDir)
 	blockChan, err := readBlocks(jsonFile)
 	if err != nil {
 		return err
 	}
 
-	return mineBlocks(consensusConfig, rpcClient, blockChan, dataDir)
+	return mineBlocks(consensusConfig, blockChan, dataDir)
 }
 
-func mineBlocks(consensusConfig *consensus.Config, rpcClient *rpc.Client, blockChan <-chan JSONBlock, dataDir string) error {
+func mineBlocks(consensusConfig *consensus.Config, blockChan <-chan JSONBlock, dataDir string) error {
 	mdb, err := newMiningDB(dataDir)
 	if err != nil {
 		return err
 	}
 
-	dbPath := filepath.Join(dataDir, "db")
+	dbPath := filepath.Join(dataDir, consensusConfig.Name, "datadir2")
 	factory := consensus.NewFactory()
 	factory.SetTestDataDir(dbPath)
 	testConsensus, tearDownFunc, err := factory.NewTestConsensus(consensusConfig, "minejson")
@@ -56,43 +56,19 @@ func mineBlocks(consensusConfig *consensus.Config, rpcClient *rpc.Client, blockC
 
 	totalBlocksSubmitted := 0
 	lastLogTime := time.Now()
-	rpcWaitInInterval := 0 * time.Second
 	for blockData := range blockChan {
-		if hash := mdb.hashByID(blockData.ID); hash != nil {
-			_, err := rpcClient.GetBlock(hash.String(), false)
-			if err == nil {
-				continue
-			}
-
-			if !strings.Contains(err.Error(), "not found") {
-				return err
-			}
-		}
-
 		block, err := mineOrFetchBlock(blockData, mdb, testConsensus)
 		if err != nil {
 			return err
 		}
-
-		beforeSubmitBlockTime := time.Now()
-		rejectReason, err := rpcClient.SubmitBlockAlsoIfNonDAA(block)
-		if err != nil {
-			return errors.Wrap(err, "error in SubmitBlock")
-		}
-		if rejectReason != appmessage.RejectReasonNone {
-			return errors.Errorf("block rejected in SubmitBlock")
-		}
-		rpcWaitInInterval += time.Since(beforeSubmitBlockTime)
 
 		totalBlocksSubmitted++
 		const logInterval = 1000
 		if totalBlocksSubmitted%logInterval == 0 {
 			intervalDuration := time.Since(lastLogTime)
 			blocksPerSecond := logInterval / intervalDuration.Seconds()
-			log.Infof("It took %s to submit %d blocks (%f blocks/sec) while %s of it it waited for RPC response"+
-				" (total blocks sent %d)", intervalDuration, logInterval, blocksPerSecond, rpcWaitInInterval,
-				totalBlocksSubmitted)
-			rpcWaitInInterval = 0
+			log.Infof("It took %s to submit %d blocks (%f blocks/sec)"+
+				" (total blocks sent %d)", intervalDuration, logInterval, blocksPerSecond, totalBlocksSubmitted)
 			lastLogTime = time.Now()
 		}
 
@@ -146,4 +122,35 @@ var random = rand.New(rand.NewSource(time.Now().UnixNano()))
 // SolveBlock increments the given block's nonce until it matches the difficulty requirements in its bits field
 func SolveBlock(block *externalapi.DomainBlock) {
 	mining.SolveBlock(block, random)
+}
+
+func PrepareSyncerDataDir(jsonFile string, consensusConfig *consensus.Config, dataDir string) error {
+	tempDir := os.TempDir()
+	_, file := path.Split(jsonFile)
+	tempDataDirKey := fmt.Sprintf("%s-%s", file, consensusConfig.Name)
+	tempDataDirPath := path.Join(tempDir, tempDataDirKey)
+
+	_, err := os.Stat(tempDataDirPath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+		err := fromFile(jsonFile, consensusConfig, tempDataDirPath)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = os.Stat(dataDir)
+	if err == nil {
+		err := os.RemoveAll(dataDir)
+		if err != nil {
+			return err
+		}
+	}
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	return copy.CopyDirectory(tempDataDirPath, dataDir)
 }

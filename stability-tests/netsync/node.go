@@ -129,12 +129,16 @@ func setupSyncee() (*rpc.Client, func(), error) {
 }
 
 func setupSyncer() (*rpc.Client, func(), error) {
-	const syncerProfilePort = "6062"
-
 	syncerDataDir, err := useDirOrCreateTemp(activeConfig().SyncerDataDirectory, "syncer-kaspad-data-dir")
 	if err != nil {
 		return nil, nil, err
 	}
+	err = mine.PrepareSyncerDataDir(cfg.DAGFile, &consensus.Config{Params: *activeConfig().NetParams()}, syncerDataDir)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	const syncerProfilePort = "6062"
 
 	rpcClient, teardown, err := setupNodeWithRPC("SYNCER", syncerListen, syncerRPCAddress, "",
 		syncerProfilePort, syncerDataDir)
@@ -148,15 +152,12 @@ func setupSyncer() (*rpc.Client, func(), error) {
 		}
 	}()
 
-	miningDataDir, err := useDirOrCreateTemp(activeConfig().MiningDataDirectory, "syncer-mining-data-dir")
+	blockDAGInfo, err := rpcClient.GetBlockDAGInfo()
 	if err != nil {
 		return nil, nil, err
 	}
-
-	err = mine.FromFile(cfg.DAGFile, &consensus.Config{Params: *activeConfig().NetParams()}, rpcClient, miningDataDir)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "error in mine.FromFile")
-	}
+	log.Infof("Syncer data dir starts from %d headers and %d blocks",
+		blockDAGInfo.HeaderCount, blockDAGInfo.BlockCount)
 
 	log.Info("Mining on top of syncer tips")
 	rejectReason, err := mineOnTips(rpcClient)

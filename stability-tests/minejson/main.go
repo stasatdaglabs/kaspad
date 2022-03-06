@@ -1,9 +1,7 @@
 package main
 
 import (
-	"github.com/kaspanet/kaspad/domain/consensus"
 	"github.com/kaspanet/kaspad/stability-tests/common"
-	"github.com/kaspanet/kaspad/stability-tests/common/mine"
 	"github.com/kaspanet/kaspad/stability-tests/common/rpc"
 	"github.com/kaspanet/kaspad/util/panics"
 	"github.com/kaspanet/kaspad/util/profiling"
@@ -29,15 +27,15 @@ func main() {
 	}
 	defer rpcClient.Disconnect()
 
-	dataDir, err := common.TempDir("minejson")
-	if err != nil {
-		panic(err)
-	}
-
-	consensusConfig := consensus.Config{Params: *cfg.NetParams()}
-
-	err = mine.FromFile(cfg.DAGFile, &consensusConfig, rpcClient, dataDir)
-	if err != nil {
-		panic(errors.Wrap(err, "error in mine.FromFile"))
-	}
+	//dataDir, err := common.TempDir("minejson")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//consensusConfig := consensus.Config{Params: *cfg.NetParams()}
+	//
+	//err = mine.fromFile(cfg.DAGFile, &consensusConfig, rpcClient, dataDir)
+	//if err != nil {
+	//	panic(errors.Wrap(err, "error in mine.fromFile"))
+	//}
 }
