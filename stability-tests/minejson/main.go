@@ -1,8 +1,9 @@
 package main
 
 import (
+	"github.com/kaspanet/kaspad/domain/consensus"
 	"github.com/kaspanet/kaspad/stability-tests/common"
-	"github.com/kaspanet/kaspad/stability-tests/common/rpc"
+	"github.com/kaspanet/kaspad/stability-tests/common/mine"
 	"github.com/kaspanet/kaspad/util/panics"
 	"github.com/kaspanet/kaspad/util/profiling"
 	"github.com/pkg/errors"
@@ -21,21 +22,16 @@ func main() {
 	if cfg.Profile != "" {
 		profiling.Start(cfg.Profile, log)
 	}
-	rpcClient, err := rpc.ConnectToRPC(&cfg.Config, cfg.NetParams())
-	if err != nil {
-		panic(errors.Wrap(err, "error connecting to JSON-RPC server"))
-	}
-	defer rpcClient.Disconnect()
 
-	//dataDir, err := common.TempDir("minejson")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//consensusConfig := consensus.Config{Params: *cfg.NetParams()}
-	//
-	//err = mine.fromFile(cfg.DAGFile, &consensusConfig, rpcClient, dataDir)
-	//if err != nil {
-	//	panic(errors.Wrap(err, "error in mine.fromFile"))
-	//}
+	dataDir, err := common.TempDir("minejson")
+	if err != nil {
+		panic(err)
+	}
+
+	consensusConfig := consensus.Config{Params: *cfg.NetParams()}
+
+	err = mine.FromFile(cfg.DAGFile, &consensusConfig, dataDir)
+	if err != nil {
+		panic(errors.Wrap(err, "error in mine.fromFile"))
+	}
 }

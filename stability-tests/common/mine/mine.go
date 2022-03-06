@@ -17,7 +17,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func fromFile(jsonFile string, consensusConfig *consensus.Config, dataDir string) error {
+func FromFile(jsonFile string, consensusConfig *consensus.Config, dataDir string) error {
 	log.Infof("Mining blocks from JSON file %s from data directory %s", jsonFile, dataDir)
 	blockChan, err := readBlocks(jsonFile)
 	if err != nil {
@@ -135,7 +135,7 @@ func PrepareSyncerDataDir(jsonFile string, consensusConfig *consensus.Config, da
 		if !os.IsNotExist(err) {
 			return err
 		}
-		err := fromFile(jsonFile, consensusConfig, tempDataDirPath)
+		err := FromFile(jsonFile, consensusConfig, tempDataDirPath)
 		if err != nil {
 			return err
 		}
